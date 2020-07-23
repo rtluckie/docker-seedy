@@ -62,7 +62,7 @@ ENV HOMEBREW_NO_ANALYTICS=1 \
     PATH=/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH
 COPY files/home/linuxbrew/bundles/10-base.brew /home/linuxbrew/bundles/
 RUN brew bundle install --no-lock --file \
-    /home/linuxbrew/bundles/10-base.brew
+        /home/linuxbrew/bundles/10-base.brew
 USER root
 RUN brew cleanup \
     && rm -fr /home/linuxbrew/.cache
@@ -109,12 +109,13 @@ COPY --from=linuxbrew --chown=1000:100 /home/linuxbrew/.linuxbrew /home/linuxbre
 COPY files/etc/profile.d /etc/profile.d
 COPY files/lib/systemd/system/ /lib/systemd/system/
 COPY files/usr/local/bin/ /usr/local/bin/
-COPY --chown=1000:100 home/linuxbrew/bundles/* /home/linuxbrew/bundles/
+COPY --chown=1000:100 files/home/linuxbrew/bundles/* /home/linuxbrew/bundles/
 
 RUN /usr/local/bin/seedy-configure
 
 RUN for BREW in $(ls /home/linuxbrew/bundles | grep -v base | grep '.brew' ); do \
         brew bundle install --no-lock --file /home/linuxbrew/bundles/${BREW}; \
     done
+
 EXPOSE 2022
 CMD ["/lib/systemd/systemd"]
