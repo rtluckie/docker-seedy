@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "Configuring systemd"
+systemctl enable seedy-setup.service
+ldconfig
+
+find /lib/systemd/system/sysinit.target.wants -mindepth 1 | grep -v systemd-tmpfiles-setup.service | xargs rm -fr
+rm -f /lib/systemd/system/sockets.target.wants/*udev*
+systemctl mask -- \
+  apt-daily-upgrade.timer \
+  apt-daily.timer \
+  e2scrub_all.timer \
+  fstrim.timer \
+  getty-static.service \
+  getty.target \
+  motd-news.timer \
+  swap.swap \
+  swap.target \
+  systemd-ask-password-wall.path \
+  systemd-logind.service \
+  systemd-remount-fs.service \
+  systemd-tmpfiles-setup.service \
+  tmp.mount
+systemctl mask -- \
+  cron.service \
+  dbus.service \
+  ntp.service
+systemctl set-default multi-user.target || true
+sed -ri /etc/systemd/journald.conf -e 's!^#?Storage=.*!Storage=volatile!'
+# Avoid port binding confict between dnsmasq and systemd-resolved
+sed -i 's/#DNSStubListener=yes/DNSStubListener=no/' /etc/systemd/resolved.conf
+# Set locale
+localedef -i en_US -f UTF-8 en_US.UTF-8
+# Configure openssh-server && \
+sed -i 's/#Port 22/Port 2022/' /etc/ssh/sshd_config
+# Configure docker daemon to support docker in docker
+mkdir /etc/docker && echo '{"storage-driver": "vfs"}' >/etc/docker/daemon.json

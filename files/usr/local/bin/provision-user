@@ -1,0 +1,145 @@
+#!/usr/bin/env bash
+
+function _message() {
+  caller=$(echo "${FUNCNAME[1]}")
+  base_message=$(echo "$caller" | sed -r 's/(\<|_)([[:alnum:]])/\U \2/g')
+  printf "⮀ %s...\n" "${base_message}"
+}
+
+function main() {
+  if [ "$#" -eq 0 ]; then
+    echo "Must provide script arg with name of function to be called"
+    exit 1
+  else
+    "$@"
+  fi
+}
+
+function set_required_vars() {
+  _message
+  export SEEDY_SHELL=${SEEDY_SHELL:-$SHELL}
+  export SEEDY_DOTFILES_REPO=${SEEDY_DOTFILES_REPO:-https://github.com/cisco-sso/yadm-dotfiles.git}
+  if [ -z "${SEEDY_USERNAME+x}" ]; then
+    # Set SEEDY_USERNAME to be $SUDO_USER if exists, otherwise $USER
+    if [[ -n "${SUDO_USER+x}" ]]; then
+      export SEEDY_USERNAME=${SUDO_USER}
+    else
+      export SEEDY_USERNAME=${USER}
+    fi
+  fi
+  OS=$(grep "^ID" /etc/os-release | cut -d= -f2) # ubuntu | debian | centos
+  SUDO_GROUP=$([ "$OS" == "centos" ] && echo "wheel" || echo "sudo")
+}
+
+function mark_provisioned() {
+  _message
+  if [[ ! -f "/etc/seedy/provisioned" ]]; then
+    mkdir -p /etc/seedy && echo 1 >/etc/seedy/provisioned
+  fi
+}
+
+function provisioned() {
+  if [[ -f "/etc/seedy/provisioned" ]]; then
+    echo "Already provisioned since exists: /etc/seedy/provisioned"
+    return 0
+  else
+    return 1
+  fi
+}
+
+function provision_user() {
+  _message
+  if ! getent passwd "${SEEDY_USERNAME}" >/dev/null 2>&1; then
+    # echo "  ⮀ Create user..."
+    useradd "${SEEDY_USERNAME}" -m -G "${SUDO_GROUP}",users,docker -s "${SEEDY_SHELL}" >/dev/null 2>&1
+  fi
+  if ! groups "${SEEDY_USERNAME}" | grep -E ' docker\s?' >/dev/null 2>&1; then
+    # echo "  Add user to docker group..."
+    usermod -a -G docker "${SEEDY_USERNAME}"
+  fi
+  # echo "  Set no password for sudoers"
+  if [[ "$OS" == "centos" ]]; then
+    sed -i 's@^# %wheel@%wheel@g' /etc/sudoers
+  else
+    sed -i 's@\%sudo\tALL=(ALL:ALL) ALL@\%sudo\tALL=(ALL) NOPASSWD:ALL@g' /etc/sudoers
+  fi
+}
+
+function provision_ssh() {
+  _message
+  if [[ ! -d "/home/${SEEDY_USERNAME}/.ssh/" ]]; then
+    # Create /home/${SEEDY_USERNAME}/.ssh/"
+    install -d -o "${SEEDY_USERNAME}" -g "${SEEDY_USERNAME}" -m 0700 /home/"${SEEDY_USERNAME}"/.ssh
+  fi
+  # Add authorized keys"
+  if [[ ! -f /home/${SEEDY_USERNAME}/.ssh/authorized_keys ]]; then
+    if [[ -f /tmp/id_rsa.pub ]]; then
+      install -o "${SEEDY_USERNAME}" -g "${SEEDY_USERNAME}" -m 0600 /tmp/id_rsa.pub /home/"${SEEDY_USERNAME}"/.ssh/authorized_keys
+    else
+      echo "  Public key file not found at /tmp/id_rsa.pub"
+      exit 1
+    fi
+  fi
+}
+
+function fix_home_perms() {
+  _message
+  chown "${SEEDY_USERNAME}":"${SEEDY_USERNAME}" /home/"${SEEDY_USERNAME}"
+  for item in config cache local; do
+    ITEM_PATH="/home/${SEEDY_USERNAME}/.${item}"
+    if [[ -d "${ITEM_PATH}" ]]; then
+      chown -R "${SEEDY_USERNAME}":"${SEEDY_USERNAME}" "${ITEM_PATH}"
+    fi
+  done
+}
+
+function fix_go_perms() {
+  _message
+  if [[ -d /go ]]; then
+    chown -R "${SEEDY_USERNAME}":"${SEEDY_USERNAME}" /go
+  fi
+}
+
+function brew_fix_write() {
+  _message
+  if [[ -d "/home/linuxbrew" ]]; then
+    TMP_DIR=$(mktemp -d -t XXXXXXXXXX)
+    mv /home/linuxbrew/.linuxbrew/ "${TMP_DIR}"
+    mv "${TMP_DIR}"/.linuxbrew/ /home/linuxbrew/
+    rm -fr "${TMP_DIR}"
+  fi
+}
+
+function brew_fix_ownership() {
+  _message
+  if [[ -d "/home/linuxbrew" ]]; then
+    chown -R "${SEEDY_USERNAME}":users /home/linuxbrew
+  fi
+}
+
+function provision_yadm() {
+  _message
+  if [[ ! -d "/home/${SEEDY_USERNAME}/.config/yadm/repo.git" ]]; then
+    su --shell "${SEEDY_SHELL}" - "${SEEDY_USERNAME}" <<EOF
+    source /etc/profile
+    yadm clone --no-bootstrap "${SEEDY_DOTFILES_REPO}" >> /var/log/seedy-provision.log 2>&1
+    /home/${SEEDY_USERNAME}/.config/yadm/bootstrap
+EOF
+    mkdir -p /etc/seedy
+    echo 1 >/etc/seedy/provisioned
+  fi
+}
+function provision() {
+  _message
+  set_required_vars
+  set -euo pipefail
+  provision_user
+  install -m 0600 -o "${SEEDY_USERNAME}" /dev/null /var/log/seedy-provision.log
+  provision_ssh
+  fix_home_perms
+  fix_go_perms
+  provision_yadm
+}
+#####################################################################
+# Run the main program
+main "$@"
