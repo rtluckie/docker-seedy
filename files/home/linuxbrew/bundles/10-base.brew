@@ -1,4 +1,5 @@
 #█▓▒░ taps
+tap "linuxbrew/xorg"
 tap "go-task/tap"
 tap "johanhaleby/kubetail"
 tap "rtluckie/tap"
