@@ -54,7 +54,7 @@ RUN yes | unminimize && \
 
 # ------------------
 
-FROM linuxbrew/brew:2.4.8 as linuxbrew
+FROM linuxbrew/brew:2.4.9 as linuxbrew
 USER linuxbrew
 ENV HOMEBREW_NO_ANALYTICS=1 \
     HOMEBREW_NO_AUTO_UPDATE=1 \
@@ -69,7 +69,7 @@ RUN brew cleanup \
 
 # ------------------
 
-FROM linuxbrew/brew:2.4.8 AS gobin
+FROM linuxbrew/brew:2.4.9 AS gobin
 ENV LANG=en_US.UTF-8 \
 	SHELL=/usr/bin/bash \
     PATH=/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH \
