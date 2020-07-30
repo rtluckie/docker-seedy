@@ -10,193 +10,193 @@ brew "tmux"
 brew "vim"
 brew "less"
 brew "git"
-brew "make"
-brew "zip"
-brew "unzip"
+# brew "make"
+# brew "zip"
+# brew "unzip"
 
-brew "curl"
-brew "wget"
-brew "yadm"
-brew "direnv"
-brew "coreutils"
-brew "moreutils"
-brew "tree"
-brew "fzf"
-brew "gettext"
-brew "go-jsonnet"
+# brew "curl"
+# brew "wget"
+# brew "yadm"
+# brew "direnv"
+# brew "coreutils"
+# brew "moreutils"
+# brew "tree"
+# brew "fzf"
+# brew "gettext"
+# brew "go-jsonnet"
 
-brew "python3"
-brew "pyenv"
-brew "pyenv-virtualenv"
-brew "pyenv-virtualenvwrapper"
-brew "pyenv-which-ext"
-brew "pipenv"
-brew "yapf"
+# brew "python3"
+# brew "pyenv"
+# brew "pyenv-virtualenv"
+# brew "pyenv-virtualenvwrapper"
+# brew "pyenv-which-ext"
+# brew "pipenv"
+# brew "yapf"
 
-brew "go"
-brew "dep"
-brew "gomplate"
-brew "goreleaser"
-brew "govc"
-brew "gcc@5"
-brew "lastpass-cli"
+# brew "go"
+# brew "dep"
+# brew "gomplate"
+# brew "goreleaser"
+# brew "govc"
+# brew "gcc@5"
+# brew "lastpass-cli"
 
-# editors
-# brew "emacs" # brew install emacs doesn't work in docker
-brew "vim"
-brew "neovim"
+# # editors
+# # brew "emacs" # brew install emacs doesn't work in docker
+# brew "vim"
+# brew "neovim"
 
-# # pagers
-brew "most"
-brew "less"
+# # # pagers
+# brew "most"
+# brew "less"
 
-# shells
-brew "bash"
-brew "zsh"
-brew "fish"
+# # shells
+# brew "bash"
+# brew "zsh"
+# brew "fish"
 
-# shell enhancements
-brew "bash-completion"
-brew "tmux"
-# brew "screen"
-brew "dialog"
-brew "bats"
+# # shell enhancements
+# brew "bash-completion"
+# brew "tmux"
+# # brew "screen"
+# brew "dialog"
+# brew "bats"
 
-# tools
-brew "colordiff"
-brew "ctags"
-brew "direnv"
-brew "dos2unix"
-brew "go-task"
-brew "jq"
-brew "make"
-brew "peru"
-brew "yadm"
-brew "yq"
+# # tools
+# brew "colordiff"
+# brew "ctags"
+# brew "direnv"
+# brew "dos2unix"
+# brew "go-task"
+# brew "jq"
+# brew "make"
+# brew "peru"
+# brew "yadm"
+# brew "yq"
 
-#█▓▒░ version control
-# git
-brew "git"
-brew "hub"
-brew "subversion"
-brew "mercurial"
+# #█▓▒░ version control
+# # git
+# brew "git"
+# brew "hub"
+# brew "subversion"
+# brew "mercurial"
 
-#█▓▒░ languages
-# golang
-brew "go"
-brew "gomplate"
-brew "goreleaser"
-brew "govc"
-brew "dep"
+# #█▓▒░ languages
+# # golang
+# brew "go"
+# brew "gomplate"
+# brew "goreleaser"
+# brew "govc"
+# brew "dep"
 
-# java
-brew "openjdk"
-brew "maven"
-brew "gradle"
+# # java
+# brew "openjdk"
+# brew "maven"
+# brew "gradle"
 
-# javascript 
-brew "node"
-brew "yarn"
+# # javascript 
+# brew "node"
+# brew "yarn"
 
-# perl 
-brew "perl"
+# # perl 
+# brew "perl"
 
-# ruby
-brew "ruby"
+# # ruby
+# brew "ruby"
 
-# rust
-# brew "rust"
+# # rust
+# # brew "rust"
 
-# python 
-brew "python3"
-brew "pipenv"
-brew "pyenv"
-brew "pyenv-virtualenv"
-brew "pyenv-virtualenvwrapper"
-brew "pyenv-which-ext"
-brew "yapf"
+# # python 
+# brew "python3"
+# brew "pipenv"
+# brew "pyenv"
+# brew "pyenv-virtualenv"
+# brew "pyenv-virtualenvwrapper"
+# brew "pyenv-which-ext"
+# brew "yapf"
 
-#█▓▒░ cloud
-# aws 
-brew "awscli"
+# #█▓▒░ cloud
+# # aws 
+# brew "awscli"
 
-# k8s 
-brew "kubernetes-cli"
-brew "kubetail"
-brew "helm"
-# brew "helm@3"
-# brew "helm@2"
-brew "helmfile"
-# brew "minikube"
-# brew "kops"
-brew "fluxctl"
+# # k8s 
+# brew "kubernetes-cli"
+# brew "kubetail"
+# brew "helm"
+# # brew "helm@3"
+# # brew "helm@2"
+# brew "helmfile"
+# # brew "minikube"
+# # brew "kops"
+# brew "fluxctl"
 
-# terraform
-brew "terraform"
-brew "terragrunt"
+# # terraform
+# brew "terraform"
+# brew "terragrunt"
 
-#█▓▒░ utils
-# compression
-brew "zip"
-brew "unzip"
+# #█▓▒░ utils
+# # compression
+# brew "zip"
+# brew "unzip"
 
-# crypto
-brew "cfssl"
-brew "gnupg"
-brew "rtluckie/tap/easy-rsa"
-brew "sops"
-brew "testssl"
+# # crypto
+# brew "cfssl"
+# brew "gnupg"
+# brew "rtluckie/tap/easy-rsa"
+# brew "sops"
+# brew "testssl"
 
-# network
-brew "libpcap"
-brew "curl"
-brew "whois"
-brew "wget"
-# brew "openssh"
-brew "openconnect"
-brew "tcpdump"
-brew "dhcpdump"
-brew "dnsmasq"
-brew "nmap"
-brew "socat"
+# # network
+# brew "libpcap"
+# brew "curl"
+# brew "whois"
+# brew "wget"
+# # brew "openssh"
+# brew "openconnect"
+# brew "tcpdump"
+# brew "dhcpdump"
+# brew "dnsmasq"
+# brew "nmap"
+# brew "socat"
 
-# misc
-brew "moreutils"
-brew "coreutils"
-brew "bc"
-brew "lsof"
-brew "tree"
+# # misc
+# brew "moreutils"
+# brew "coreutils"
+# brew "bc"
+# brew "lsof"
+# brew "tree"
 
-# performance
-brew "fio"
+# # performance
+# brew "fio"
 
-#█▓▒░ other
-# containers
-# brew "docker"
-# brew "docker-compose"
-brew "rtluckie/tap/crictl"
+# #█▓▒░ other
+# # containers
+# # brew "docker"
+# # brew "docker-compose"
+# brew "rtluckie/tap/crictl"
 
-#jsonnet
-brew "go-jsonnet"
+# #jsonnet
+# brew "go-jsonnet"
 
-# DB 
-brew "libpq"
-# i18n/l10n
-brew "gettext"
+# # DB 
+# brew "libpq"
+# # i18n/l10n
+# brew "gettext"
 
-# misc
-# brew "consul"
-brew "drone-cli"
-# brew "etcd"
-# brew "minio-mc"
-# brew "rtluckie/tap/amtool"
-# brew "rtluckie/tap/vault"
-# brew "ansible"
-brew "grpcurl"
-# brew "hugo"
-brew "lastpass-cli"
-brew "fzf"
-brew "gcc@5"
-brew "pre-commit"
-brew "fd"
-brew "ack"
+# # misc
+# # brew "consul"
+# brew "drone-cli"
+# # brew "etcd"
+# # brew "minio-mc"
+# # brew "rtluckie/tap/amtool"
+# # brew "rtluckie/tap/vault"
+# # brew "ansible"
+# brew "grpcurl"
+# # brew "hugo"
+# brew "lastpass-cli"
+# brew "fzf"
+# brew "gcc@5"
+# brew "pre-commit"
+# brew "fd"
+# brew "ack"

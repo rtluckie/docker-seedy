@@ -54,15 +54,17 @@ RUN yes | unminimize && \
 
 # ------------------
 
-FROM linuxbrew/brew:2.4.9 as linuxbrew
+FROM linuxbrew/brew:2.4.8 as linuxbrew
 USER linuxbrew
 ENV HOMEBREW_NO_ANALYTICS=1 \
     HOMEBREW_NO_AUTO_UPDATE=1 \
-    LANG=en_US.UTF-8 \ 
+    LANG=en_US.UTF-8 \
+    SHELL=/usr/bin/bash \
     PATH=/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH
 COPY files/home/linuxbrew/bundles/10-base.brew /home/linuxbrew/bundles/
-RUN brew install perl || true && \
-    brew bundle install --no-lock --file \
+RUN brew install perl && \
+    brew update && \
+    brew bundle --no-upgrade install --no-lock --file \
         /home/linuxbrew/bundles/10-base.brew
 USER root
 RUN brew cleanup \
