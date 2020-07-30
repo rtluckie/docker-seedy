@@ -1,145 +1,242 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
 
-function _message() {
-  caller=$(echo "${FUNCNAME[1]}")
-  base_message=$(echo "$caller" | sed -r 's/(\<|_)([[:alnum:]])/\U \2/g')
-  printf "⮀ %s...\n" "${base_message}"
-}
+import argparse
+import grp
+import logging
+import os
+import pathlib
+import pwd
+import shutil
+import subprocess
 
-function main() {
-  if [ "$#" -eq 0 ]; then
-    echo "Must provide script arg with name of function to be called"
-    exit 1
-  else
-    "$@"
-  fi
-}
 
-function set_required_vars() {
-  _message
-  export SEEDY_SHELL=${SEEDY_SHELL:-$SHELL}
-  export SEEDY_DOTFILES_REPO=${SEEDY_DOTFILES_REPO:-https://github.com/cisco-sso/yadm-dotfiles.git}
-  if [ -z "${SEEDY_USERNAME+x}" ]; then
-    # Set SEEDY_USERNAME to be $SUDO_USER if exists, otherwise $USER
-    if [[ -n "${SUDO_USER+x}" ]]; then
-      export SEEDY_USERNAME=${SUDO_USER}
-    else
-      export SEEDY_USERNAME=${USER}
-    fi
-  fi
-  OS=$(grep "^ID" /etc/os-release | cut -d= -f2) # ubuntu | debian | centos
-  SUDO_GROUP=$([ "$OS" == "centos" ] && echo "wheel" || echo "sudo")
-}
+def setup_logging(logger_name='provision_user', default_log_level='INFO', file_log_level='DEBUG'):
+    logger = logging.getLogger(logger_name)
+    logger.setLevel(default_log_level)
+    formatter = logging.Formatter(fmt='%(asctime)s:%(msecs)-4d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s', datefmt='%Y.%m.%d %H:%M:%S')
+    file_handler = logging.FileHandler('/tmp/{}.log'.format(logger_name))
+    file_handler.setLevel(file_log_level)
+    file_handler.setFormatter(formatter)
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(default_log_level)
+    console_handler.setFormatter(formatter)
 
-function mark_provisioned() {
-  _message
-  if [[ ! -f "/etc/seedy/provisioned" ]]; then
-    mkdir -p /etc/seedy && echo 1 >/etc/seedy/provisioned
-  fi
-}
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+    return logger
 
-function provisioned() {
-  if [[ -f "/etc/seedy/provisioned" ]]; then
-    echo "Already provisioned since exists: /etc/seedy/provisioned"
-    return 0
-  else
-    return 1
-  fi
-}
 
-function provision_user() {
-  _message
-  if ! getent passwd "${SEEDY_USERNAME}" >/dev/null 2>&1; then
-    # echo "  ⮀ Create user..."
-    useradd "${SEEDY_USERNAME}" -m -G "${SUDO_GROUP}",users,docker -s "${SEEDY_SHELL}" >/dev/null 2>&1
-  fi
-  if ! groups "${SEEDY_USERNAME}" | grep -E ' docker\s?' >/dev/null 2>&1; then
-    # echo "  Add user to docker group..."
-    usermod -a -G docker "${SEEDY_USERNAME}"
-  fi
-  # echo "  Set no password for sudoers"
-  if [[ "$OS" == "centos" ]]; then
-    sed -i 's@^# %wheel@%wheel@g' /etc/sudoers
-  else
-    sed -i 's@\%sudo\tALL=(ALL:ALL) ALL@\%sudo\tALL=(ALL) NOPASSWD:ALL@g' /etc/sudoers
-  fi
-}
+def cli():
+    parser = argparse.ArgumentParser(description='Provision user.')
+    parser.add_argument('--username', dest='USERNAME', type=str, help='Username to provision')
+    parser.add_argument('--uid', dest='UID', type=str, default='1000', help="The numerical value of the user's ID. This value must be unique")
+    parser.add_argument('--groups', dest='GROUPS', type=str, default='users,docker', help="comma seperated list of supplementary groups of the new account")
+    parser.add_argument('--shell', dest='SHELL', type=str, default='bash', help='Shell to use')
+    parser.add_argument('--dotfiles', '-d', dest='DOTFILES', type=str, help='Dotfiles to use.')
+    parser.add_argument("-v", "--verbose", dest='VERBOSE', action="store_true")
+    args = parser.parse_args()
+    return parser, args
 
-function provision_ssh() {
-  _message
-  if [[ ! -d "/home/${SEEDY_USERNAME}/.ssh/" ]]; then
-    # Create /home/${SEEDY_USERNAME}/.ssh/"
-    install -d -o "${SEEDY_USERNAME}" -g "${SEEDY_USERNAME}" -m 0700 /home/"${SEEDY_USERNAME}"/.ssh
-  fi
-  # Add authorized keys"
-  if [[ ! -f /home/${SEEDY_USERNAME}/.ssh/authorized_keys ]]; then
-    if [[ -f /tmp/id_rsa.pub ]]; then
-      install -o "${SEEDY_USERNAME}" -g "${SEEDY_USERNAME}" -m 0600 /tmp/id_rsa.pub /home/"${SEEDY_USERNAME}"/.ssh/authorized_keys
-    else
-      echo "  Public key file not found at /tmp/id_rsa.pub"
-      exit 1
-    fi
-  fi
-}
 
-function fix_home_perms() {
-  _message
-  chown "${SEEDY_USERNAME}":"${SEEDY_USERNAME}" /home/"${SEEDY_USERNAME}"
-  for item in config cache local; do
-    ITEM_PATH="/home/${SEEDY_USERNAME}/.${item}"
-    if [[ -d "${ITEM_PATH}" ]]; then
-      chown -R "${SEEDY_USERNAME}":"${SEEDY_USERNAME}" "${ITEM_PATH}"
-    fi
-  done
-}
+def read_config(fpath=None):
+    if not os.path.isfile(fpath):
+        log.error('Failed to read file [%s]', fpath)
+        raise FileExistsError('Failed to read file [%s]', fpath)
+    with open(fpath) as fin:
+        data = {}
+        for line in fin:
+            if '=' in line:
+                k, v = line.rstrip().split("=")
+                data[k] = v.lstrip('"').rstrip('"')
+    return data
 
-function fix_go_perms() {
-  _message
-  if [[ -d /go ]]; then
-    chown -R "${SEEDY_USERNAME}":"${SEEDY_USERNAME}" /go
-  fi
-}
 
-function brew_fix_write() {
-  _message
-  if [[ -d "/home/linuxbrew" ]]; then
-    TMP_DIR=$(mktemp -d -t XXXXXXXXXX)
-    mv /home/linuxbrew/.linuxbrew/ "${TMP_DIR}"
-    mv "${TMP_DIR}"/.linuxbrew/ /home/linuxbrew/
-    rm -fr "${TMP_DIR}"
-  fi
-}
+def run_command(cmd=None):
+    if type(cmd) == str:
+        cmd_str = cmd
+        cmd = cmd.split()
+    else:
+        cmd_str = ' '.join(cmd)
+    log.debug('Running command [%s]', cmd_str)
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    while True:
+        stdout = process.stdout.readline().strip().decode("utf-8")
+        stderr = process.stderr.readline().strip().decode("utf-8")
+        if (stdout == '' and stderr == '') and process.poll() is not None:
+            break
+        if stdout:
+            log.debug(stdout)
+        if stderr:
+            log.debug(stderr)
+    rc = process.poll()
+    return rc
 
-function brew_fix_ownership() {
-  _message
-  if [[ -d "/home/linuxbrew" ]]; then
-    chown -R "${SEEDY_USERNAME}":users /home/linuxbrew
-  fi
-}
 
-function provision_yadm() {
-  _message
-  if [[ ! -d "/home/${SEEDY_USERNAME}/.config/yadm/repo.git" ]]; then
-    su --shell "${SEEDY_SHELL}" - "${SEEDY_USERNAME}" <<EOF
-    source /etc/profile
-    yadm clone --no-bootstrap "${SEEDY_DOTFILES_REPO}" >> /var/log/seedy-provision.log 2>&1
-    /home/${SEEDY_USERNAME}/.config/yadm/bootstrap
-EOF
-    mkdir -p /etc/seedy
-    echo 1 >/etc/seedy/provisioned
-  fi
-}
-function provision() {
-  _message
-  set_required_vars
-  set -euo pipefail
-  provision_user
-  install -m 0600 -o "${SEEDY_USERNAME}" /dev/null /var/log/seedy-provision.log
-  provision_ssh
-  fix_home_perms
-  fix_go_perms
-  provision_yadm
-}
-#####################################################################
-# Run the main program
-main "$@"
+def provision_user(username=None, uid=None, groups=None, shell=None):
+    if not shutil.which('sudo'):
+        raise ValueError("sudo must be installed")
+
+    shell_path = shutil.which(shell)
+    if not shell_path:
+        log.fatal('Shell [%s] not found', shell)
+
+    def get_sudo_group(all_groups=None):
+        for group in all_groups:
+            if group == 'sudo':
+                return 'sudo'
+            elif group == 'wheel':
+                return 'wheel'
+        raise ValueError("No sudo group found")
+
+    def set_no_password_for_sudoers(fpath='/etc/sudoers', sudo_group=None):
+        log.debug('Setting no password for sudoers...')
+        if not os.path.isfile(fpath):
+            raise FileExistsError('/etc/sudoers does not exist')
+        sudo_line = '%{sudo_group}\tALL=(ALL:ALL) NOPASSWD:ALL\n'
+        sudo_line = sudo_line.format(sudo_group=sudo_group)
+        with open(fpath, 'r') as fread:
+            for line in fread:
+                if line == sudo_line:
+                    log.debug('sudo line already exists')
+                    return
+        log.debug('Add sudo line...')
+        with open(fpath, 'a') as fa:
+            fa.write('\n')
+            fa.write(sudo_line)
+            return
+
+    def create_user(username=None, groups=None, shell=None):
+        cmd = 'useradd --create-home --user-group --groups {groups} --shell {shell} --uid {uid} {username}'
+        cmd = cmd.format(username=username, uid=uid, groups=groups, shell=shell)
+        proc = run_command(cmd)
+        return proc
+
+    all_user_names = [user[0] for user in pwd.getpwall()]
+    all_group_names = [group[0] for group in grp.getgrall()]
+
+    sudo_group = get_sudo_group(all_groups=all_group_names)
+
+    groups = [sudo_group] + groups.split(',')
+
+    target_groups = []
+    for group in groups:
+        if group not in all_group_names:
+            log.warning('Group [%s] not found', group)
+        else:
+            target_groups.append(group)
+
+    groups = ','.join(target_groups)
+
+    if username not in all_user_names:
+        create_user(username=username, groups=groups, shell=shell_path)
+    else:
+        log.debug('User [%s] already exists', username)
+
+    set_no_password_for_sudoers(sudo_group=sudo_group)
+
+
+def provision_ssh(user=None):
+    def fix_owner_and_perms(dpath=None, user=None):
+        user_query = pwd.getpwnam(user)
+        _uid = user_query.pw_uid
+        _gid = user_query.pw_gid
+        for root, dirs, files in os.walk(dpath):
+            for i in dirs:
+                target = os.path.join(root, i)
+                os.chown(target, uid=_uid, gid=_gid)
+                os.chmod(path=target, mode=0o700)
+            for i in files:
+                target = os.path.join(root, i)
+                os.chown(target, uid=_uid, gid=_gid)
+                os.chmod(path=target, mode=0o600)
+
+    def append_authorized_keys(authorized_keys_fpath=None, public_key_fpath=None):
+        if not public_key_fpath:
+            public_key_fpath = '/tmp/id_rsa.pub'
+        log.debug('Append public key to authorized keys...')
+        if not os.path.isfile(authorized_keys_fpath):
+            pathlib.Path(authorized_keys_fpath).touch()
+        if not os.path.isfile(public_key_fpath):
+            raise FileExistsError('Public key does not exist [%s]', public_key_fpath)
+        public_key_data = open(public_key_fpath).read()
+        with open(authorized_keys_fpath, 'r') as f:
+            for line in f:
+                if line == public_key_data:
+                    log.debug('Public key already in authorized keys')
+                    return True
+        log.debug('Adding public key to authorized keys...')
+        with open(authorized_keys_fpath, 'a') as f:
+            f.write('\n')
+            f.write(public_key_data)
+            return True
+
+    home = pwd.getpwnam(user).pw_dir
+    dpath = os.path.join(home, '.ssh')
+    if not os.path.isdir(dpath):
+        os.makedirs(name=dpath, mode=0o700)
+    authorized_keys_fpath = os.path.join(dpath, 'authorized_keys')
+    append_authorized_keys(authorized_keys_fpath=authorized_keys_fpath)
+    fix_owner_and_perms(dpath=dpath, user=user)
+
+
+def provision_yadm(user=None, dotfiles=None, shell=None):
+    log.info('YADM Provision')
+    base_cmd = ['su', '--login', '--shell', shell, user, '-c']
+    cmd = base_cmd.copy()
+    extra_cmd = 'source /etc/profile && yadm clone --no-bootstrap {dotfiles}'.format(dotfiles=dotfiles)
+    cmd.append(extra_cmd)
+    rc = run_command(cmd=cmd)
+    if rc != 0:
+        log.error('Issue with yadm provision')
+
+    cmd = base_cmd.copy()
+    extra_cmd = '/home/{user}/.config/yadm/bootstrap'.format(user=user)
+    cmd.append(extra_cmd)
+
+    rc = run_command(cmd=cmd)
+    if rc != 0:
+        log.error('Issue with yadm provision')
+
+
+def fix_home_ownership(user=None):
+    dpath = os.path.join('/home', user)
+    if not os.path.isdir(dpath):
+        raise ValueError('No directory found at %s', dpath)
+    cmd = 'chown {user}:{user} {dpath}'.format(user=user, dpath=dpath)
+    rc = run_command(cmd)
+
+    dnames = ['.config', '.cache', '.local']
+    for dname in dnames:
+        dpath = os.path.join('/home', user, dname)
+        if os.path.isdir(dpath):
+            cmd = 'chown -R {user}:{user} {dpath}'.format(user=user, dpath=dpath)
+            rc = run_command(cmd)
+            if rc != 0:
+                log.error("error running command [%s]", cmd)
+
+
+def fix_go_ownership(user=None):
+    log.debug('Fix go ownership')
+    dpath = '/go'
+    if not os.path.isdir(dpath):
+        log.debug('No dpath found [%s]', dpath)
+        return True
+    cmd = 'chown -R {user}:{user} {dpath}'.format(user=user, dpath=dpath)
+    exit_code = run_command(cmd)
+    print(exit_code)
+
+
+if __name__ == '__main__':
+    parser, args = cli()
+    if args.VERBOSE:
+        log = setup_logging(default_log_level='DEBUG')
+    else:
+        log = setup_logging()
+    shell_path = shutil.which(args.SHELL)
+    if not shell_path:
+        log.fatal('Shell [%s] not found', args.SHELL)
+    provision_user(username=args.USERNAME, uid=args.UID, groups=args.GROUPS, shell=args.SHELL)
+    provision_ssh(user=args.USERNAME)
+    fix_home_ownership(user=args.USERNAME)
+    fix_go_ownership(user=args.USERNAME)
+    provision_yadm(user=args.USERNAME, dotfiles=args.DOTFILES, shell=shell_path)
