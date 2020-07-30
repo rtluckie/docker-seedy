@@ -61,7 +61,8 @@ ENV HOMEBREW_NO_ANALYTICS=1 \
     LANG=en_US.UTF-8 \ 
     PATH=/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH
 COPY files/home/linuxbrew/bundles/10-base.brew /home/linuxbrew/bundles/
-RUN brew bundle install --no-lock --file \
+RUN brew install perl || true && \
+    brew bundle install --verbose --no-lock --file \
         /home/linuxbrew/bundles/10-base.brew
 USER root
 RUN brew cleanup \
