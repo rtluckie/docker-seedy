@@ -200,3 +200,5 @@ brew "gcc@5"
 brew "pre-commit"
 brew "fd"
 brew "ack"
+brew "gh"
+
