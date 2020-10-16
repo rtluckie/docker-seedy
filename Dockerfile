@@ -77,7 +77,8 @@ ENV LANG=en_US.UTF-8 \
 	SHELL=/usr/bin/bash \
     PATH=/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH \
     GOPATH=/go
-RUN brew install go "gcc@5"
+RUN brew install go gcc && \
+	ln -s $(brew --prefix gcc)/bin/gcc /usr/local/bin/gcc-5
 RUN eval $($(brew --prefix)/bin/brew shellenv) && \
     (cd /tmp; GO111MODULE=on go get github.com/davidrjenni/reftools/cmd/fillstruct@master) && \
     (cd /tmp; GO111MODULE=on go get github.com/fatih/gomodifytags@master) && \
