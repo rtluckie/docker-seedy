@@ -78,7 +78,7 @@ brew "yq"
 # git
 brew "git"
 brew "hub"
-brew "subversion"
+# brew "subversion"
 brew "mercurial"
 
 #█▓▒░ languages
