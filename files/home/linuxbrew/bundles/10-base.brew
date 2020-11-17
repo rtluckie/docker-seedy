@@ -201,4 +201,5 @@ brew "pre-commit"
 brew "fd"
 brew "ack"
 brew "gh"
+brew "libffi"
 
