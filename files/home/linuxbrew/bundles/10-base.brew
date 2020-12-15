@@ -77,9 +77,9 @@ brew "yq"
 #█▓▒░ version control
 # git
 brew "git"
-brew "hub"
+# brew "hub"
 # brew "subversion"
-brew "mercurial"
+# brew "mercurial"
 
 #█▓▒░ languages
 # golang
@@ -90,9 +90,9 @@ brew "govc"
 brew "dep"
 
 # java
-brew "openjdk"
-brew "maven"
-brew "gradle"
+# brew "openjdk"
+# brew "maven"
+# brew "gradle"
 
 # javascript 
 brew "node"
@@ -116,20 +116,16 @@ brew "pyenv-virtualenvwrapper"
 brew "pyenv-which-ext"
 brew "yapf"
 
-#█▓▒░ cloud
-# aws 
-brew "awscli"
-
 # k8s 
 brew "kubernetes-cli"
-brew "kubetail"
-brew "helm"
+# brew "kubetail"
+# brew "helm"
 # brew "helm@3"
 # brew "helm@2"
-brew "helmfile"
+# brew "helmfile"
 # brew "minikube"
 # brew "kops"
-brew "fluxctl"
+# brew "fluxctl"
 
 # terraform
 brew "terraform"
@@ -184,9 +180,13 @@ brew "libpq"
 # i18n/l10n
 brew "gettext"
 
+#█▓▒░ cloud
+# aws 
+brew "awscli"
+
 # misc
 # brew "consul"
-brew "drone-cli"
+# brew "drone-cli"
 # brew "etcd"
 # brew "minio-mc"
 # brew "rtluckie/tap/amtool"
