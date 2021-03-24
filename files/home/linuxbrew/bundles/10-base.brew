@@ -202,4 +202,4 @@ brew "fd"
 brew "ack"
 brew "gh"
 brew "libffi"
-
+brew "shellcheck"
