@@ -1,7 +1,7 @@
 #█▓▒░ taps
-tap "linuxbrew/xorg"
-tap "go-task/tap"
-tap "johanhaleby/kubetail"
+# tap "linuxbrew/xorg"
+# tap "go-task/tap"
+# tap "johanhaleby/kubetail"
 # tap "rtluckie/tap"
 
 #█▓▒░ essentials
@@ -67,7 +67,7 @@ brew "colordiff"
 brew "ctags"
 brew "direnv"
 brew "dos2unix"
-brew "go-task"
+# brew "go-task"
 brew "jq"
 brew "make"
 brew "peru"
