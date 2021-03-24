@@ -2,7 +2,7 @@
 tap "linuxbrew/xorg"
 tap "go-task/tap"
 tap "johanhaleby/kubetail"
-tap "rtluckie/tap"
+# tap "rtluckie/tap"
 
 #█▓▒░ essentials
 brew "zsh"
@@ -139,7 +139,7 @@ brew "unzip"
 # crypto
 brew "cfssl"
 brew "gnupg"
-brew "rtluckie/tap/easy-rsa"
+# brew "rtluckie/tap/easy-rsa"
 brew "sops"
 brew "testssl"
 
@@ -170,7 +170,7 @@ brew "fio"
 # containers
 # brew "docker"
 # brew "docker-compose"
-brew "rtluckie/tap/crictl"
+# brew "rtluckie/tap/crictl"
 
 #jsonnet
 brew "go-jsonnet"
