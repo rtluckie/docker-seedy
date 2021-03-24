@@ -182,7 +182,7 @@ brew "gettext"
 
 #█▓▒░ cloud
 # aws 
-# brew "awscli"
+brew "awscli"
 
 # misc
 # brew "consul"
