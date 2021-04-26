@@ -54,7 +54,7 @@ RUN yes | unminimize && \
 
 # ------------------
 
-FROM linuxbrew/brew:3.0.13 as linuxbrew
+FROM linuxbrew/brew:3.1.3 as linuxbrew
 USER root
 RUN ln -s /usr/include/locale.h /usr/include/xlocale.h
 USER linuxbrew
@@ -72,7 +72,7 @@ RUN brew cleanup \
 
 # ------------------
 
-# FROM linuxbrew/brew:3.0.13 AS gobin
+# FROM linuxbrew/brew:3.1.3 AS gobin
 # ENV LANG=en_US.UTF-8 \
 # 	SHELL=/usr/bin/bash \
 #     PATH=/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH \
