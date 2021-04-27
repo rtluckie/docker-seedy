@@ -79,11 +79,14 @@ RUN brew cleanup \
 # ------------------
 
 FROM $BREW_IMAGE AS gobin
-ENV LANG=en_US.UTF-8 \
-	SHELL=/usr/bin/bash \
+ENV HOMEBREW_NO_ANALYTICS=1 \
+    HOMEBREW_NO_AUTO_UPDATE=1 \
+    LANG=en_US.UTF-8 \
+    SHELL=/usr/bin/bash \
     PATH=/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH \
     GOPATH=/go
 RUN brew install go && \
+    ln -s $(brew --prefix gcc)/bin/gcc /usr/local/bin/gcc-5 && \
     eval $($(brew --prefix)/bin/brew shellenv) && \
     (cd /tmp; GO111MODULE=on go get github.com/davidrjenni/reftools/cmd/fillstruct@master) && \
     (cd /tmp; GO111MODULE=on go get github.com/fatih/gomodifytags@master) && \
@@ -113,7 +116,7 @@ ENV LANG=en_US.UTF-8 \
 	PATH=/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH \
 	SHELL=/bin/bash
 
-# COPY --from=gobin --chown=1000:100 /go/bin /go/bin
+COPY --from=gobin --chown=1000:100 /go/bin /go/bin
 COPY --from=linuxbrew --chown=1000:100 /home/linuxbrew/.linuxbrew /home/linuxbrew/.linuxbrew
 COPY files/etc/profile.d /etc/profile.d
 COPY files/lib/systemd/system/ /lib/systemd/system/
