@@ -86,13 +86,11 @@ ENV HOMEBREW_NO_ANALYTICS=1 \
     PATH=/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH \
     GOPATH=/go
 RUN brew install go && \
-    ln -s $(brew --prefix gcc)/bin/gcc /usr/local/bin/gcc-5 && \
     eval $($(brew --prefix)/bin/brew shellenv) && \
     (cd /tmp; GO111MODULE=on go get github.com/davidrjenni/reftools/cmd/fillstruct@master) && \
     (cd /tmp; GO111MODULE=on go get github.com/fatih/gomodifytags@master) && \
     (cd /tmp; GO111MODULE=on go get github.com/fatih/motion@master) && \
     (cd /tmp; GO111MODULE=on go get github.com/go-delve/delve/cmd/dlv@master) && \
-    (cd /tmp; GO111MODULE=on go get github.com/golangci/golangci-lint/cmd/golangci-lint@master) && \
     (cd /tmp; GO111MODULE=on go get github.com/josharian/impl@master) && \
     (cd /tmp; GO111MODULE=on go get github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb@master) && \
     (cd /tmp; GO111MODULE=on go get github.com/jstemmer/gotags@master) && \

@@ -39,12 +39,13 @@ brew "gomplate"
 brew "goreleaser"
 brew "govc"
 brew "gcc@5"
+brew "golangci-lint"
 # brew "lastpass-cli"
 
 # editors
 # brew "emacs" # brew install emacs doesn't work in docker
 brew "vim"
-brew "neovim"
+# brew "neovim"
 
 # # pagers
 brew "most"
@@ -90,9 +91,9 @@ brew "govc"
 brew "dep"
 
 # java
-# brew "openjdk"
-# brew "maven"
-# brew "gradle"
+brew "openjdk"
+brew "maven"
+brew "gradle"
 
 # javascript 
 brew "node"
