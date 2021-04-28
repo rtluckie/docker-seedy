@@ -67,14 +67,22 @@ ENV HOMEBREW_NO_ANALYTICS=1 \
     SHELL=/usr/bin/bash \
     PATH=/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH
 COPY --chown=1000:100 files/home/linuxbrew/bundles/* /home/linuxbrew/bundles/
-RUN brew update && brew upgrade
-RUN for BREW in $(ls /home/linuxbrew/bundles | grep -v base | grep '.brew' ); do \
+COPY --chown=1000:100 files/usr/local/bin/* /usr/local/bin/
+
+RUN brew update && brew upgrade && \
+    for BREW in $(ls /home/linuxbrew/bundles | grep '.brew' ); do \
         brew bundle install --no-lock --file /home/linuxbrew/bundles/${BREW}; \
     done && \
     brew cleanup
 USER root
 RUN brew cleanup \
     && rm -fr /home/linuxbrew/.cache
+
+RUN eval $($(brew --prefix)/bin/brew shellenv) && \
+    eval $(/usr/local/bin/brew_pyenv_setup.sh) && \
+    pyenv install 3.7.10 && \
+    pyenv install 3.8.9 && \
+    pyenv install 3.9.4
 
 # ------------------
 
@@ -116,6 +124,8 @@ ENV LANG=en_US.UTF-8 \
 
 COPY --from=gobin --chown=1000:100 /go/bin /go/bin
 COPY --from=linuxbrew --chown=1000:100 /home/linuxbrew/.linuxbrew /home/linuxbrew/.linuxbrew
+COPY --from=linuxbrew --chown=1000:100 /root/.pyenv /root/.pyenv
+
 COPY files/etc/profile.d /etc/profile.d
 COPY files/lib/systemd/system/ /lib/systemd/system/
 COPY files/usr/local/bin/ /usr/local/bin/
