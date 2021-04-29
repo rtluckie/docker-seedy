@@ -1,3 +1,5 @@
 #█▓▒░ cloud
 # aws 
 brew "awscli"
+
+brew "openjdk@8"
