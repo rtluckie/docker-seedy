@@ -36,6 +36,8 @@ RUN yes | unminimize && \
 # ------------------
 
 FROM $BREW_IMAGE as linuxbrew
+USER root
+RUN ln -s /usr/include/locale.h /usr/include/xlocale.h
 USER linuxbrew
 ENV PATH=/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH \
 	SHELL=/bin/bash \
@@ -45,13 +47,11 @@ ENV PATH=/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH \
 COPY --chown=1000:100 files/home/linuxbrew/bundles/* /home/linuxbrew/bundles/
 COPY --chown=1000:100 files/usr/local/bin/* /usr/local/bin/
 
-RUN ln -s /usr/include/locale.h /usr/include/xlocale.h && \
-    for BREW in $(ls /home/linuxbrew/bundles | grep '.brew' ); do \
-        brew bundle install --no-lock --file /home/linuxbrew/bundles/${BREW}; \
+RUN for BREW in $(ls /home/linuxbrew/bundles | grep '.brew' ); do \
+      brew bundle install --no-lock --file /home/linuxbrew/bundles/${BREW}; \
     done && \
     brew cleanup && \
-    brew cleanup \
-    && rm -fr /home/linuxbrew/.cache
+    rm -fr /home/linuxbrew/.cache
 
 USER root
 RUN eval $($(brew --prefix)/bin/brew shellenv) && \
