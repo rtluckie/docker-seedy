@@ -69,7 +69,8 @@ ENV PATH=/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH \
 COPY --chown=1000:100 files/home/linuxbrew/bundles/* /home/linuxbrew/bundles/
 COPY --chown=1000:100 files/usr/local/bin/* /usr/local/bin/
 
-RUN for BREW in $(ls /home/linuxbrew/bundles | grep '.brew' ); do \
+RUN brew update && brew upgrade && \
+	for BREW in $(ls /home/linuxbrew/bundles | grep '.brew' ); do \
       brew bundle install --no-lock --file /home/linuxbrew/bundles/${BREW}; \
     done && \
     brew cleanup && \
