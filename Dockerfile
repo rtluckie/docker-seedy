@@ -95,28 +95,23 @@ ENV PATH=/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH \
     GOPATH=/go
 RUN brew install go && \
     eval $($(brew --prefix)/bin/brew shellenv) && \
-    PACKAGES=( \
-    "github.com/davidrjenni/reftools/cmd/fillswitch" \ 
-    "github.com/davidrjenni/reftools/cmd/fixplurals" \ 
-    "github.com/davidrjenni/reftools/cmd/fillstruct" \ 
-    "github.com/fatih/gomodifytags" \ 
-    "github.com/fatih/motion" \ 
-    "github.com/go-delve/delve/cmd/dlv" \ 
-    "github.com/josharian/impl" \ 
-    "github.com/kisielk/errcheck" \ 
-    "github.com/klauspost/asmfmt/cmd/asmfmt" \ 
-    "github.com/koron/iferr" \ 
-    "github.com/mitchellh/gox" \ 
-    "github.com/rogpeppe/godef" \ 
-    "github.com/vmware/govmomi/govc" \ 
-    "golang.org/x/lint/golint" \ 
-    "golang.org/x/tools/..." \ 
-    "golang.org/x/tools/gopls@latest" \ 
-    "honnef.co/go/tools/cmd/..." \
-    ) && \
-    for package in "${PACKAGES[@]}"; do \
-      (cd /tmp; GO111MODULE=on go get ${package}) \ 
-    done
+    (cd /tmp; GO111MODULE=on go get github.com/davidrjenni/reftools/cmd/fillswitch) && \
+    (cd /tmp; GO111MODULE=on go get github.com/davidrjenni/reftools/cmd/fixplurals) && \
+    (cd /tmp; GO111MODULE=on go get github.com/davidrjenni/reftools/cmd/fillstruct) && \
+    (cd /tmp; GO111MODULE=on go get github.com/fatih/gomodifytags) && \
+    (cd /tmp; GO111MODULE=on go get github.com/fatih/motion) && \
+    (cd /tmp; GO111MODULE=on go get github.com/go-delve/delve/cmd/dlv) && \
+    (cd /tmp; GO111MODULE=on go get github.com/josharian/impl) && \
+    (cd /tmp; GO111MODULE=on go get github.com/kisielk/errcheck) && \
+    (cd /tmp; GO111MODULE=on go get github.com/klauspost/asmfmt/cmd/asmfmt) && \
+    (cd /tmp; GO111MODULE=on go get github.com/koron/iferr) && \
+    (cd /tmp; GO111MODULE=on go get github.com/mitchellh/gox) && \
+    (cd /tmp; GO111MODULE=on go get github.com/rogpeppe/godef) && \
+    (cd /tmp; GO111MODULE=on go get github.com/vmware/govmomi/govc) && \
+    (cd /tmp; GO111MODULE=on go get golang.org/x/lint/golint) && \
+    (cd /tmp; GO111MODULE=on go get golang.org/x/tools/...) && \
+    (cd /tmp; GO111MODULE=on go get golang.org/x/tools/gopls@latest) && \
+    (cd /tmp; GO111MODULE=on go get honnef.co/go/tools/cmd/...)
 
 # ------------------
 
