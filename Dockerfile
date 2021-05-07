@@ -80,8 +80,8 @@ USER root
 RUN eval $($(brew --prefix)/bin/brew shellenv) && \
     eval $(/usr/local/bin/brew_pyenv_setup.sh 2> /dev/null) && \
     pyenv install 3.7.10 && \
-    pyenv install 3.8.10 && \
-    pyenv install 3.9.5 && \
+    pyenv install 3.8.9 && \
+    pyenv install 3.9.4 && \
     find /root/.pyenv/versions -type d -name __pycache__ -exec rm -fr {} +
 
 # ------------------
