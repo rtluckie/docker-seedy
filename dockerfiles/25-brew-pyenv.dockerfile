@@ -5,18 +5,22 @@ ENV PATH=/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH \
 	SHELL=/bin/bash \
     LANG=en_US.UTF-8 \
     HOMEBREW_NO_ANALYTICS=1 \
-    HOMEBREW_NO_AUTO_UPDATE=1 \
+    HOMEBREW_NO_AUTO_UPDATE=1
+
+COPY --chown=1000:100 files/usr/local/bin/brew_pyenv_setup.sh /usr/local/bin/brew_pyenv_setup.sh
+
 RUN brew install \
     bzip2 \
     lbzip2 \
     libffi \
     lzlib \
     openssl \
-    pyenv
+    pyenv \
     readline \
     sqlite \
     xz \
     zlib
+
 USER root
 RUN eval $($(brew --prefix)/bin/brew shellenv) && \
     eval $(/usr/local/bin/brew_pyenv_setup.sh 2> /dev/null) && \
