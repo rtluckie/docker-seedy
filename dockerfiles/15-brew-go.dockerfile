@@ -1,6 +1,6 @@
-ARG BREW_IMAGE='linuxbrew/brew:${BREW_IMAGE_VERSION}'
+ARG BREW_IMAGE='linuxbrew/brew:3.1.6'
 
-FROM $BREW_IMAGE AS go
+FROM $BREW_IMAGE
 ENV PATH=/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH \
 	SHELL=/bin/bash \
     LANG=en_US.UTF-8 \

@@ -1,0 +1,8 @@
+sudo docker buildx build --progress=plain -t rtluckie/seedy:base-0.11.0 -t rtluckie/seedy:base-latest -f dockerfiles/00-base.dockerfile .
+
+
+sudo docker buildx build --progress=plain -t rtluckie/seedy:brew-go-0.11.0 -t rtluckie/seedy:brew-go-latest -f dockerfiles/15-brew-go.dockerfile .
+
+sudo docker buildx build --progress=plain -t rtluckie/seedy:brew-pyenv-0.11.0 -t rtluckie/seedy:brew-pyenv-latest -f dockerfiles/25-brew-pyenv.dockerfile .
+
+sudo docker buildx build --progress=plain -t rtluckie/seedy:brew-brewfiles-0.11.0 -t rtluckie/seedy:brew-brewfiles-latest -f dockerfiles/35-brew-brewfiles.dockerfile .

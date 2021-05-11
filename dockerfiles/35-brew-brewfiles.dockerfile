@@ -1,6 +1,6 @@
-ARG BREW_IMAGE='linuxbrew/brew:${BREW_IMAGE_VERSION}'
+ARG BREW_IMAGE='linuxbrew/brew:3.1.6'
 
-FROM $BREW_IMAGE as linuxbrew
+FROM $BREW_IMAGE
 USER root
 RUN ln -s /usr/include/locale.h /usr/include/xlocale.h
 USER linuxbrew

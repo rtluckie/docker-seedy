@@ -4,7 +4,7 @@ FROM $BASE_IMAGE AS phase01
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN yes | unminimize && \
-    apt -qqy update && apt -qqy upgrade \
+    apt -qqy update && apt -qqy upgrade && \
     apt -qqy install --no-install-recommends \
         software-properties-common && \
     apt -qqy install --no-install-recommends \
