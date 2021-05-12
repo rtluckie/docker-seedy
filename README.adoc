@@ -7,9 +7,9 @@ sudo docker buildx build --progress=plain -t rtluckie/seedy:brew-pyenv-0.11.0 -t
 
 sudo docker buildx build --progress=plain -t rtluckie/seedy:brew-brewfiles-0.11.0 -t rtluckie/seedy:brew-brewfiles-latest -f dockerfiles/35-brew-brewfiles.dockerfile .
 
-sudo docker buildx build --progress=plain -t rtluckie/seedy:brew-brewfiles-0.11.0 -t rtluckie/seedy:brew-brewfiles-latest -f dockerfiles/35-brew-brewfiles.dockerfile .
+sudo docker buildx build --progress=plain -t rtluckie/seedy:brew-brewfiles-0.12.0 -t rtluckie/seedy:brew-brewfiles-latest -f dockerfiles/35-brew-brewfiles.dockerfile .
 
-sudo docker buildx build --progress=plain -t rtluckie/seedy:0.11.0 -t rtluckie/seedy:latest -f dockerfiles/95-final.dockerfile .
+sudo docker buildx build --progress=plain -t rtluckie/seedy:0.12.0 -t rtluckie/seedy:latest -f dockerfiles/95-final.dockerfile .
 
 
 sudo docker push docker.io/rtluckie/seedy:base-0.11.0
@@ -21,9 +21,9 @@ sudo docker push docker.io/rtluckie/seedy:brew-go-latest
 sudo docker push docker.io/rtluckie/seedy:brew-pyenv-0.11.0
 sudo docker push docker.io/rtluckie/seedy:brew-pyenv-latest
 
-sudo docker push docker.io/rtluckie/seedy:brew-brewfiles-0.11.0
+sudo docker push docker.io/rtluckie/seedy:brew-brewfiles-0.12.0
 sudo docker push docker.io/rtluckie/seedy:brew-brewfiles-latest
 
 
-sudo docker push docker.io/rtluckie/seedy:0.11.0
+sudo docker push docker.io/rtluckie/seedy:0.12.0
 sudo docker push docker.io/rtluckie/seedy:latest
